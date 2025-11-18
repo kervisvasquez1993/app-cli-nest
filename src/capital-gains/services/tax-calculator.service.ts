@@ -42,7 +42,7 @@ export class TaxCalculatorService {
   ): number {
     const weightedAverage = portfolio.getWeightedAveragePrice();
     const profitPerShare = operation.unitCost - weightedAverage;
-    
+
     return profitPerShare * operation.quantity;
   }
 }

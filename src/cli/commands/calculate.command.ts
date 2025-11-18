@@ -1,5 +1,4 @@
 import { CapitalGainsService } from '../../capital-gains/capital-gains.service';
-import { OperationDto } from '../../capital-gains/dto/operation.dto';
 import * as readline from 'readline';
 
 export class CalculateCommand {
@@ -14,18 +13,28 @@ export class CalculateCommand {
       terminal: false,
     });
 
-    rl.on('line', (line: string) => {
+    rl.on('line', async (line: string) => {
       if (line.trim() === '') {
         rl.close();
         return;
       }
 
       try {
-        const operations: OperationDto[] = JSON.parse(line);
-        const results = this.service.processOperations(operations);
+        const operations = JSON.parse(line);
+
+        // 🆕 Usar el método con validación
+        const results =
+          await this.service.processOperationsWithValidation(operations);
+
         console.log(JSON.stringify(results));
       } catch (error) {
-        console.error(`❌ Error: ${error.message}`);
+        // 🆕 Mejor manejo de errores
+        if (error.response?.errors) {
+          console.error('❌ Errores de validación:');
+          console.error(JSON.stringify(error.response.errors, null, 2));
+        } else {
+          console.error(`❌ Error: ${error.message}`);
+        }
       }
     });
 

@@ -19,10 +19,11 @@ export class Portfolio {
   updateWeightedAverage(quantity: number, unitCost: number): void {
     const currentTotal = this.totalShares * this.weightedAveragePrice;
     const newTotal = quantity * unitCost;
-    
+
     this.totalShares += quantity;
     // ✅ Redondear a 2 decimales
-    this.weightedAveragePrice = Math.round(((currentTotal + newTotal) / this.totalShares) * 100) / 100;
+    this.weightedAveragePrice =
+      Math.round(((currentTotal + newTotal) / this.totalShares) * 100) / 100;
   }
 
   // Reducir cantidad de acciones cuando vendemos

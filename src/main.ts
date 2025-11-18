@@ -8,7 +8,7 @@ async function bootstrap() {
   });
 
   const cliService = app.get(CLIService);
-  
+
   cliService.setup();
   cliService.run(process.argv);
 }

@@ -1,16 +1,12 @@
 import { Module } from '@nestjs/common';
-import { CapitalGainsController } from './capital-gains.controller';
+
 import { CapitalGainsService } from './capital-gains.service';
 import { TaxCalculatorService } from './services/tax-calculator.service';
-import { WeightedAverageService } from './services/weighted-average.service';
+import { ValidationService } from './services/validation.service';
 
 @Module({
-  controllers: [CapitalGainsController],
-  providers: [
-    CapitalGainsService,
-    TaxCalculatorService,
-    WeightedAverageService,
-  ],
+  controllers: [],
+  providers: [CapitalGainsService, TaxCalculatorService, ValidationService],
   exports: [CapitalGainsService],
 })
 export class CapitalGainsModule {}

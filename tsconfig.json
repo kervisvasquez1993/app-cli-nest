@@ -1,25 +1,45 @@
 {
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "resolvePackageJsonExports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "declaration": true,
-    "removeComments": true,
+    // ----------------------------------------------------
+    // ✅ CLAVE para ES Modules / Incompatibilidad con 'ink'
+    // ----------------------------------------------------
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    // ----------------------------------------------------
+
+    "target": "ES2022", // Recomendado para Node.js moderno (mantener o subir un poco de 2021)
+
+    // --- Opciones de NestJS y Decoradores ---
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
+
+    // --- JSX (React) ---
+    "jsx": "react", // Correcto para tu uso con 'ink'
+    "jsxFactory": "React.createElement", // Correcto
+    "jsxFragmentFactory": "React.Fragment", // Correcto
+
+    // --- Compatibilidad y Módulos ---
+    // Esta opción es crucial, ya la tenías, ¡bien!
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true, // Mantenemos (útil con esModuleInterop)
+    "resolveJsonModule": true,
+
+    // --- Salida y Control de Archivos ---
+    "declaration": true,
+    "removeComments": true,
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
+
+    // --- Controles de Tipado (Ajusta según necesidad) ---
     "skipLibCheck": true,
-    "strictNullChecks": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": false,
+    "strictNullChecks": false, // Considera activarlos si buscas código más robusto
+    "noImplicitAny": false, // Considera activarlos
     "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

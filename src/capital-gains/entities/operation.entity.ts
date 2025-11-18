@@ -1,7 +1,4 @@
-export enum OperationType {
-  BUY = 'buy',
-  SELL = 'sell',
-}
+import { OperationType } from '../enums/operation-type.enum';
 
 export class Operation {
   constructor(
