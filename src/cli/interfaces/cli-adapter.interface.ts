@@ -2,7 +2,7 @@ export interface ICommand {
   name: string;
   description: string;
   alias?: string;
-  action: (...args: any[]) => void | Promise<void>;
+  action: (...args: string[]) => void | Promise<void>;
 }
 
 export interface ICLIAdapter {

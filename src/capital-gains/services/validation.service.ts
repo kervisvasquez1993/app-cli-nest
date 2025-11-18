@@ -6,7 +6,7 @@ import { validate, ValidationError } from 'class-validator';
 export class ValidationService {
   async validateDto<T extends object>(
     dtoClass: new () => T,
-    plain: any,
+    plain: unknown,
   ): Promise<T> {
     const dtoInstance = plainToClass(dtoClass, plain);
     const errors = await validate(dtoInstance);
@@ -24,7 +24,7 @@ export class ValidationService {
 
   async validateArray<T extends object>(
     dtoClass: new () => T,
-    plainArray: any[],
+    plainArray: unknown,
   ): Promise<T[]> {
     if (!Array.isArray(plainArray)) {
       throw new BadRequestException('Expected an array of operations');

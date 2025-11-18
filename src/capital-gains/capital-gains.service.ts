@@ -8,17 +8,13 @@ import { ValidationService } from './services/validation.service';
 
 @Injectable()
 export class CapitalGainsService {
-  private portfolio: Portfolio;
-
   constructor(
     private readonly taxCalculatorService: TaxCalculatorService,
     private readonly validationService: ValidationService,
-  ) {
-    this.portfolio = new Portfolio();
-  }
+  ) {}
 
   async processOperationsWithValidation(
-    operations: any[],
+    operations: unknown,
   ): Promise<TaxResultDto[]> {
     const validatedOperations = await this.validationService.validateArray(
       OperationDto,
@@ -28,31 +24,26 @@ export class CapitalGainsService {
   }
 
   processOperations(operations: OperationDto[]): TaxResultDto[] {
-    this.portfolio.reset();
+    const portfolio = new Portfolio();
     const results: TaxResultDto[] = [];
+
     for (const operationDto of operations) {
       const operation = this.mapToOperation(operationDto);
-      const tax = this.processOperation(operation);
+      const tax = this.processOperation(operation, portfolio);
       results.push(new TaxResultDto(tax));
     }
+
     return results;
   }
 
-  private processOperation(operation: Operation): number {
+  private processOperation(operation: Operation, portfolio: Portfolio): number {
     if (operation.isBuy()) {
-      this.portfolio.updateWeightedAverage(
-        operation.quantity,
-        operation.unitCost,
-      );
+      portfolio.updateWeightedAverage(operation.quantity, operation.unitCost);
       return 0;
     }
 
-    const tax = this.taxCalculatorService.calculateTax(
-      operation,
-      this.portfolio,
-    );
-
-    this.portfolio.reduceShares(operation.quantity);
+    const tax = this.taxCalculatorService.calculateTax(operation, portfolio);
+    portfolio.reduceShares(operation.quantity);
 
     return tax;
   }
