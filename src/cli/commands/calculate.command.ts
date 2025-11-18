@@ -1,8 +1,9 @@
-import { CapitalGainsController } from '../../capital-gains/capital-gains.controller';
+import { CapitalGainsService } from '../../capital-gains/capital-gains.service';
+import { OperationDto } from '../../capital-gains/dto/operation.dto';
 import * as readline from 'readline';
 
 export class CalculateCommand {
-  constructor(private readonly controller: CapitalGainsController) {}
+  constructor(private readonly service: CapitalGainsService) {}
 
   execute(): void {
     console.log('📝 Esperando entrada (stdin). Línea vacía para terminar.\n');
@@ -20,8 +21,9 @@ export class CalculateCommand {
       }
 
       try {
-        const result = this.controller.processLine(line);
-        console.log(result);
+        const operations: OperationDto[] = JSON.parse(line);
+        const results = this.service.processOperations(operations);
+        console.log(JSON.stringify(results));
       } catch (error) {
         console.error(`❌ Error: ${error.message}`);
       }

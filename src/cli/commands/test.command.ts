@@ -1,4 +1,5 @@
-import { CapitalGainsController } from '../../capital-gains/capital-gains.controller';
+import { CapitalGainsService } from '../../capital-gains/capital-gains.service';
+import { OperationDto } from '../../capital-gains/dto/operation.dto';
 
 interface TestCase {
   name: string;
@@ -7,7 +8,7 @@ interface TestCase {
 }
 
 export class TestCommand {
-  constructor(private readonly controller: CapitalGainsController) {}
+  constructor(private readonly service: CapitalGainsService) {}
 
   execute(): void {
     console.log('🧪 Ejecutando casos de prueba\n');
@@ -18,17 +19,24 @@ export class TestCommand {
     let failed = 0;
 
     testCases.forEach((testCase, index) => {
-      const result = this.controller.processLine(testCase.input);
-      const isPass = result === testCase.expected;
+      try {
+        const operations: OperationDto[] = JSON.parse(testCase.input);
+        const results = this.service.processOperations(operations);
+        const result = JSON.stringify(results);
+        const isPass = result === testCase.expected;
 
-      console.log(`${index + 1}. ${testCase.name}`);
-      console.log(`   Esperado: ${testCase.expected}`);
-      console.log(`   Obtenido: ${result}`);
-      console.log(`   ${isPass ? '✅ PASÓ' : '❌ FALLÓ'}`);
-      console.log('');
+        console.log(`${index + 1}. ${testCase.name}`);
+        console.log(`   Esperado: ${testCase.expected}`);
+        console.log(`   Obtenido: ${result}`);
+        console.log(`   ${isPass ? '✅ PASÓ' : '❌ FALLÓ'}`);
+        console.log('');
 
-      if (isPass) passed++;
-      else failed++;
+        if (isPass) passed++;
+        else failed++;
+      } catch (error) {
+        console.error(`❌ Error en test ${index + 1}: ${error.message}`);
+        failed++;
+      }
     });
 
     console.log('═══════════════════════════════════════════════════════════');

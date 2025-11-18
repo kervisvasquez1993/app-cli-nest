@@ -11,6 +11,6 @@ import { WeightedAverageService } from './services/weighted-average.service';
     TaxCalculatorService,
     WeightedAverageService,
   ],
-  exports: [CapitalGainsService, CapitalGainsController],
+  exports: [CapitalGainsService],
 })
 export class CapitalGainsModule {}

@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { CapitalGainsController } from '../capital-gains/capital-gains.controller';
+import { Injectable, Inject } from '@nestjs/common';
+import { CapitalGainsService } from '../capital-gains/capital-gains.service';
 import { type ICLIAdapter, ICommand } from './interfaces/cli-adapter.interface';
 import { CalculateCommand } from './commands/calculate.command';
 import { FileCommand } from './commands/file.command';
@@ -14,13 +14,13 @@ export class CLIService {
   private interactiveCommand: InteractiveCommand;
 
   constructor(
-    private readonly cliAdapter: ICLIAdapter,
-    private readonly controller: CapitalGainsController,
+    @Inject('ICLIAdapter') private readonly cliAdapter: ICLIAdapter,
+    private readonly service: CapitalGainsService,
   ) {
-    this.calculateCommand = new CalculateCommand(this.controller);
-    this.fileCommand = new FileCommand(this.controller);
-    this.testCommand = new TestCommand(this.controller);
-    this.interactiveCommand = new InteractiveCommand(this.controller);
+    this.calculateCommand = new CalculateCommand(this.service);
+    this.fileCommand = new FileCommand(this.service);
+    this.testCommand = new TestCommand(this.service);
+    this.interactiveCommand = new InteractiveCommand(this.service);
   }
 
   setup(): void {
@@ -62,11 +62,11 @@ export class CLIService {
   }
 
   run(args: string[]): void {
-    this.cliAdapter.parse(args);
-
-    // Si no se pasa ningún comando, mostrar ayuda
-    if (!args.slice(2).length) {
+    if (args.length <= 2) {
       this.cliAdapter.showHelp();
+      return;
     }
+
+    this.cliAdapter.parse(args);
   }
 }
