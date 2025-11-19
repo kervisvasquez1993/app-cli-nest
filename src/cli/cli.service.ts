@@ -1,27 +1,24 @@
+// src/cli/cli.service.ts
 import { Injectable, Inject } from '@nestjs/common';
-import { CapitalGainsService } from '../capital-gains/capital-gains.service';
-import { type ICLIAdapter, ICommand } from './interfaces/cli-adapter.interface';
-import { CalculateCommand } from './commands/calculate.command';
-import { FileCommand } from './commands/file.command';
-import { TestCommand } from './commands/test.command';
-import { InteractiveCommand } from './commands/interactive.command';
+import {
+  CLI_ADAPTER,
+  ICLIAdapter,
+  ICommand,
+} from './domain/ports/cli-adapter.interface';
+import { ProcessStdinUseCase } from './application/use-cases/process-stdin.use-case';
+import { ProcessFileUseCase } from './application/use-cases/process-file.use-case';
+import { RunTestsUseCase } from './application/use-cases/run-tests.use-case';
 
 @Injectable()
 export class CLIService {
-  private calculateCommand: CalculateCommand;
-  private fileCommand: FileCommand;
-  private testCommand: TestCommand;
-  private interactiveCommand: InteractiveCommand;
-
   constructor(
-    @Inject('ICLIAdapter') private readonly cliAdapter: ICLIAdapter,
-    private readonly service: CapitalGainsService,
-  ) {
-    this.calculateCommand = new CalculateCommand(this.service);
-    this.fileCommand = new FileCommand(this.service);
-    this.testCommand = new TestCommand(this.service);
-    this.interactiveCommand = new InteractiveCommand(this.service);
-  }
+    @Inject(CLI_ADAPTER)
+    private readonly cliAdapter: ICLIAdapter,
+
+    private readonly processStdin: ProcessStdinUseCase,
+    private readonly processFile: ProcessFileUseCase,
+    private readonly runTests: RunTestsUseCase,
+  ) {}
 
   setup(): void {
     this.cliAdapter.setName('capital-gains');
@@ -29,7 +26,6 @@ export class CLIService {
       '📊 Calculadora de Impuestos sobre Ganancia de Capital',
     );
     this.cliAdapter.setVersion('1.0.0');
-
     this.registerCommands();
   }
 
@@ -38,23 +34,23 @@ export class CLIService {
       {
         name: 'calculate',
         description: 'Procesar operaciones desde stdin (modo estándar)',
-        action: () => this.calculateCommand.execute(),
+        action: () => {
+          void this.processStdin.execute();
+        },
       },
       {
         name: 'file <path>',
         description: 'Procesar operaciones desde archivo',
-        action: (path: string) => this.fileCommand.execute(path),
+        action: (path: string) => {
+          void this.processFile.execute(path);
+        },
       },
       {
         name: 'test',
         description: 'Ejecutar casos de prueba predefinidos',
-        action: () => this.testCommand.execute(),
-      },
-      {
-        name: 'interactive',
-        alias: 'i',
-        description: 'Modo interactivo con ejemplos y ayuda',
-        action: () => this.interactiveCommand.execute(),
+        action: () => {
+          void this.runTests.execute();
+        },
       },
     ];
 
@@ -62,11 +58,13 @@ export class CLIService {
   }
 
   run(args: string[]): void {
+    // Si no hay argumentos, mostrar ayuda
     if (args.length <= 2) {
       this.cliAdapter.showHelp();
-      return;
+      process.exit(0);
     }
 
+    // Parsear y ejecutar comando
     this.cliAdapter.parse(args);
   }
 }

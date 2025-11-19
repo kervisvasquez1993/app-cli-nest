@@ -13,34 +13,62 @@ export class CalculateCommand {
       terminal: false,
     });
 
-    rl.on('line', async (line: string) => {
-      if (line.trim() === '') {
-        rl.close();
-        return;
-      }
-
-      try {
-        const operations = JSON.parse(line);
-
-        // 🆕 Usar el método con validación
-        const results =
-          await this.service.processOperationsWithValidation(operations);
-
-        console.log(JSON.stringify(results));
-      } catch (error) {
-        // 🆕 Mejor manejo de errores
-        if (error.response?.errors) {
-          console.error('❌ Errores de validación:');
-          console.error(JSON.stringify(error.response.errors, null, 2));
-        } else {
-          console.error(`❌ Error: ${error.message}`);
-        }
-      }
+    rl.on('line', (line: string) => {
+      void this.processLine(line, rl);
     });
 
     rl.on('close', () => {
       console.log('\n✅ Procesamiento completado');
       process.exit(0);
     });
+  }
+
+  private async processLine(
+    line: string,
+    rl: readline.Interface,
+  ): Promise<void> {
+    if (line.trim() === '') {
+      rl.close();
+      return;
+    }
+
+    try {
+      const parsed: unknown = JSON.parse(line);
+
+      if (!Array.isArray(parsed)) {
+        throw new Error('El formato debe ser un array de operaciones');
+      }
+
+      const results =
+        await this.service.processOperationsWithValidation(parsed);
+
+      console.log(JSON.stringify(results));
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  private handleError(error: unknown): void {
+    if (this.isValidationError(error)) {
+      console.error('❌ Errores de validación:');
+      console.error(JSON.stringify(error.response.errors, null, 2));
+    } else if (error instanceof Error) {
+      console.error(`❌ Error: ${error.message}`);
+    } else {
+      console.error('❌ Error desconocido');
+    }
+  }
+
+  private isValidationError(
+    error: unknown,
+  ): error is { response: { errors: unknown } } {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof error.response === 'object' &&
+      error.response !== null &&
+      'errors' in error.response
+    );
   }
 }

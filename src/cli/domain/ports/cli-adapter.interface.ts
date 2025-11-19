@@ -5,6 +5,8 @@ export interface ICommand {
   action: (...args: string[]) => void | Promise<void>;
 }
 
+export const CLI_ADAPTER = Symbol('ICLIAdapter');
+
 export interface ICLIAdapter {
   setName(name: string): void;
   setDescription(description: string): void;

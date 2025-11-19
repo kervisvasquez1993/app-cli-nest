@@ -1,5 +1,4 @@
 import { CapitalGainsService } from '../../capital-gains/capital-gains.service';
-import { OperationDto } from '../../capital-gains/dto/operation.dto';
 import * as readline from 'readline';
 
 export class InteractiveCommand {
@@ -30,28 +29,61 @@ export class InteractiveCommand {
       output: process.stdout,
     });
 
-    const processLine = () => {
+    const processLine = (): void => {
       rl.question('> ', (line: string) => {
-        if (line.trim() === '') {
-          console.log('\n✅ Sesión terminada. ¡Hasta pronto!');
-          rl.close();
-          process.exit(0);
-          return;
-        }
-
-        try {
-          const operations: OperationDto[] = JSON.parse(line);
-          const results = this.service.processOperations(operations);
-          console.log(`📤 Resultado: ${JSON.stringify(results)}\n`);
-        } catch (error) {
-          console.error(`❌ Error: ${error.message}\n`);
-        }
-
-        processLine();
+        // ✅ Usar void para manejar la Promise
+        void this.handleInput(line, rl, processLine);
       });
     };
 
     processLine();
+  }
+
+  // ✅ Método async para manejar la entrada
+  private async handleInput(
+    line: string,
+    rl: readline.Interface,
+    processLine: () => void,
+  ): Promise<void> {
+    if (line.trim() === '') {
+      console.log('\n✅ Sesión terminada. ¡Hasta pronto!');
+      rl.close();
+      process.exit(0);
+      return;
+    }
+
+    try {
+      // ✅ Parsear de forma segura
+      const parsed: unknown = JSON.parse(line);
+
+      if (!Array.isArray(parsed)) {
+        throw new Error('El formato debe ser un array de operaciones');
+      }
+
+      // ✅ Usar el método async correcto
+      const results =
+        await this.service.processOperationsWithValidation(parsed);
+      console.log(`📤 Resultado: ${JSON.stringify(results)}\n`);
+    } catch (error) {
+      // ✅ Manejo seguro de errores
+      const errorMessage = this.getErrorMessage(error);
+      console.error(`❌ Error: ${errorMessage}\n`);
+    }
+
+    processLine();
+  }
+
+  // ✅ Helper para extraer mensajes de error
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    if (typeof error === 'string') {
+      return error;
+    }
+
+    return 'Error desconocido';
   }
 
   private showExamples(): void {

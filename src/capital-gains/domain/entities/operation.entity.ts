@@ -1,4 +1,4 @@
-import { OperationType } from '../enums/operation-type.enum';
+import { OperationType } from '../../enums/operation-type.enum';
 
 export class Operation {
   constructor(

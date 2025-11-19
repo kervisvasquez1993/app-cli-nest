@@ -1,4 +1,10 @@
-import { CapitalGainsService } from '../../capital-gains/capital-gains.service';
+// src/cli/application/use-cases/run-tests.use-case.ts
+import { Injectable, Inject } from '@nestjs/common';
+import { ProcessOperationsUseCase } from '../../../capital-gains/application/use-cases/process-operations.use-case';
+import {
+  OUTPUT_WRITER,
+  IOutputWriter,
+} from '../../domain/ports/output-writer.interface';
 
 interface TestCase {
   name: string;
@@ -6,76 +12,72 @@ interface TestCase {
   expected: string;
 }
 
-export class TestCommand {
-  constructor(private readonly service: CapitalGainsService) {}
+@Injectable()
+export class RunTestsUseCase {
+  constructor(
+    @Inject(OUTPUT_WRITER)
+    private readonly outputWriter: IOutputWriter,
 
-  execute(): void {
-    console.log('🧪 Ejecutando casos de prueba\n');
-    console.log(
+    private readonly processOperations: ProcessOperationsUseCase,
+  ) {}
+
+  async execute(): Promise<void> {
+    this.outputWriter.write('🧪 Ejecutando casos de prueba\n');
+    this.outputWriter.write(
       '═══════════════════════════════════════════════════════════\n',
     );
 
-    // ✅ Ejecutar de forma asíncrona
-    void this.runTests();
-  }
-
-  // ✅ Método async para ejecutar los tests
-  private async runTests(): Promise<void> {
     const testCases = this.getTestCases();
     let passed = 0;
     let failed = 0;
 
-    // ✅ Usar for...of en lugar de forEach para manejar async correctamente
     for (const [index, testCase] of testCases.entries()) {
       const result = await this.runTest(testCase, index + 1);
-
       if (result) {
         passed++;
       } else {
         failed++;
       }
     }
-
-    console.log('═══════════════════════════════════════════════════════════');
-    console.log(`📊 Resumen: ${passed} pasaron, ${failed} fallaron`);
-    console.log(
+    this.outputWriter.write(
+      '═══════════════════════════════════════════════════════════',
+    );
+    this.outputWriter.write(
+      `📊 Resumen: ${passed} pasaron, ${failed} fallaron`,
+    );
+    this.outputWriter.write(
       '═══════════════════════════════════════════════════════════\n',
     );
 
     process.exit(failed > 0 ? 1 : 0);
   }
 
-  // ✅ Método para ejecutar un test individual
   private async runTest(testCase: TestCase, index: number): Promise<boolean> {
     try {
-      // ✅ Parsear de forma segura
+      // ✅ Parseamos de forma segura
       const parsed: unknown = JSON.parse(testCase.input);
 
       if (!Array.isArray(parsed)) {
         throw new Error('Test case inválido: debe ser un array');
       }
 
-      // ✅ Usar el método async correcto
-      const results =
-        await this.service.processOperationsWithValidation(parsed);
+      const results = await this.processOperations.execute(parsed);
       const result = JSON.stringify(results);
       const isPass = result === testCase.expected;
 
-      console.log(`${index}. ${testCase.name}`);
-      console.log(`   Esperado: ${testCase.expected}`);
-      console.log(`   Obtenido: ${result}`);
-      console.log(`   ${isPass ? '✅ PASÓ' : '❌ FALLÓ'}`);
-      console.log('');
+      this.outputWriter.write(`${index}. ${testCase.name}`);
+      this.outputWriter.write(`   Esperado: ${testCase.expected}`);
+      this.outputWriter.write(`   Obtenido: ${result}`);
+      this.outputWriter.write(`   ${isPass ? '✅ PASÓ' : '❌ FALLÓ'}\n`);
 
       return isPass;
     } catch (error) {
       const errorMessage = this.getErrorMessage(error);
-      console.error(`❌ Error en test ${index}: ${errorMessage}`);
+      this.outputWriter.writeError(`Error en test ${index}: ${errorMessage}`);
       return false;
     }
   }
 
-  // ✅ Helper para extraer mensajes de error
   private getErrorMessage(error: unknown): string {
     if (error instanceof Error) {
       return error.message;

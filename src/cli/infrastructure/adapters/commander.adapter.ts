@@ -1,6 +1,11 @@
+import { Injectable } from '@nestjs/common';
 import { Command } from 'commander';
-import { ICLIAdapter, ICommand } from '../interfaces/cli-adapter.interface';
+import {
+  ICLIAdapter,
+  ICommand,
+} from '../../domain/ports/cli-adapter.interface';
 
+@Injectable()
 export class CommanderAdapter implements ICLIAdapter {
   private program: Command;
 
@@ -37,9 +42,5 @@ export class CommanderAdapter implements ICLIAdapter {
 
   showHelp(): void {
     this.program.outputHelp();
-  }
-
-  getProgram(): Command {
-    return this.program;
   }
 }

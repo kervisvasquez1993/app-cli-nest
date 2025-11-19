@@ -1,3 +1,4 @@
+// src/capital-gains/capital-gains.module.ts
 import { Module } from '@nestjs/common';
 
 import { CapitalGainsService } from './capital-gains.service';
@@ -22,6 +23,10 @@ import { PORTFOLIO_REPOSITORY } from './domain/ports/portfolio-repository.port';
     ProcessSellOperationUseCase,
     CapitalGainsService,
   ],
-  exports: [CapitalGainsService],
+  exports: [
+    CapitalGainsService,
+    ProcessOperationsUseCase,
+    PORTFOLIO_REPOSITORY,
+  ],
 })
 export class CapitalGainsModule {}
