@@ -1,4 +1,3 @@
-// src/cli/domain/ports/cli-framework.port.ts
 export const CLI_FRAMEWORK = Symbol('ICLIFramework');
 
 export type OptionValue = string | number | boolean;

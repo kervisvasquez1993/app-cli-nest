@@ -1,4 +1,3 @@
-// src/cli/infrastructure/adapters/cli-framework/ink-react.adapter.ts
 import { Injectable } from '@nestjs/common';
 import {
   ICLIFramework,
@@ -33,7 +32,6 @@ export class InkReactAdapter implements ICLIFramework {
       process.exit(1);
     }
 
-    // Parsear opciones para comandos como 'file -f input.txt'
     const options = this.parseOptions(args.slice(3), command.options || []);
 
     try {
@@ -52,16 +50,12 @@ export class InkReactAdapter implements ICLIFramework {
     commandOptions: CLIOption[],
   ): Record<string, OptionValue> {
     const options: Record<string, OptionValue> = {};
-
-    // Establecer valores por defecto
     commandOptions.forEach((option) => {
       const optionName = this.extractOptionName(option.flags);
       if (option.defaultValue !== undefined) {
         options[optionName] = option.defaultValue;
       }
     });
-
-    // Parsear argumentos
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
 
@@ -76,9 +70,9 @@ export class InkReactAdapter implements ICLIFramework {
 
           if (nextArg && !nextArg.startsWith('-')) {
             options[optionName] = this.parseValue(nextArg);
-            i++; // Saltar el siguiente argumento
+            i++;
           } else {
-            options[optionName] = true; // Flag booleano
+            options[optionName] = true;
           }
         }
       }
@@ -88,22 +82,17 @@ export class InkReactAdapter implements ICLIFramework {
   }
 
   private parseValue(value: string): OptionValue {
-    // Intentar convertir a número
     const numValue = Number(value);
     if (!isNaN(numValue) && value.trim() !== '') {
       return numValue;
     }
 
-    // Convertir booleanos
     if (value.toLowerCase() === 'true') return true;
     if (value.toLowerCase() === 'false') return false;
-
-    // Retornar como string
     return value;
   }
 
   private extractOptionName(flags: string): string {
-    // Extraer el nombre largo de flags como "-f, --file <path>"
     const match = flags.match(/--([a-zA-Z0-9-]+)/);
     return match ? match[1] : flags.replace(/^-+/, '');
   }

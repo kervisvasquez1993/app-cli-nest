@@ -11,6 +11,9 @@ interface TestCase {
   input: string[];
   expectedOutput: string[];
 }
+interface TaxOutput {
+  tax: number;
+}
 
 @Injectable()
 export class RunTestsUseCase {
@@ -72,9 +75,13 @@ export class RunTestsUseCase {
     if (actual.length !== expected.length) return false;
 
     return actual.every((line, index) => {
-      const actualParsed = JSON.parse(line);
-      const expectedParsed = JSON.parse(expected[index]);
-      return JSON.stringify(actualParsed) === JSON.stringify(expectedParsed);
+      try {
+        const actualParsed = JSON.parse(line) as TaxOutput[];
+        const expectedParsed = JSON.parse(expected[index]) as TaxOutput[];
+        return JSON.stringify(actualParsed) === JSON.stringify(expectedParsed);
+      } catch {
+        return false;
+      }
     });
   }
 

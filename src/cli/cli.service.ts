@@ -1,4 +1,3 @@
-// src/cli/cli.service.ts
 import { Injectable, Inject } from '@nestjs/common';
 import {
   ICLIFramework,
@@ -8,6 +7,7 @@ import {
 import { ReadInputFromStdinUseCase } from './application/use-cases/read-input-from-stdin.use-case';
 import { ReadInputFromFileUseCase } from './application/use-cases/read-input-from-file.use-case';
 import { RunTestsUseCase } from './application/use-cases/run-tests.use-case';
+import { RunInteractiveModeUseCase } from './application/use-cases/run-interactive-mode.use-case';
 
 @Injectable()
 export class CLIService {
@@ -17,17 +17,14 @@ export class CLIService {
     private readonly readFromStdin: ReadInputFromStdinUseCase,
     private readonly readFromFile: ReadInputFromFileUseCase,
     private readonly runTests: RunTestsUseCase,
+    private readonly runInteractive: RunInteractiveModeUseCase,
   ) {}
 
-  /**
-   * Configura todos los comandos disponibles
-   */
   setup(): void {
     this.registerCommands();
   }
 
   private registerCommands(): void {
-    // Comando: process (default - lee desde stdin)
     this.cliFramework.registerCommand({
       name: 'process',
       description: 'Procesa operaciones desde stdin',
@@ -63,6 +60,15 @@ export class CLIService {
       description: 'Ejecuta los casos de prueba',
       action: async () => {
         await this.runTests.execute();
+      },
+    });
+
+    // Comando: interactive (modo interactivo con UI)
+    this.cliFramework.registerCommand({
+      name: 'interactive',
+      description: 'Inicia el modo interactivo con interfaz visual',
+      action: async () => {
+        await this.runInteractive.execute();
       },
     });
   }

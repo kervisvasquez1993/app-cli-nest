@@ -17,7 +17,9 @@ import { ProcessOperationsBatchUseCase } from './application/use-cases/process-o
 import { ReadInputFromStdinUseCase } from './application/use-cases/read-input-from-stdin.use-case';
 import { ReadInputFromFileUseCase } from './application/use-cases/read-input-from-file.use-case';
 import { RunTestsUseCase } from './application/use-cases/run-tests.use-case';
+import { RunInteractiveModeUseCase } from './application/use-cases/run-interactive-mode.use-case';
 import { InkReactAdapter } from './infrastructure/adapters/cli-framework/ink-react.adapter';
+import { InteractiveProcessorService } from './application/services/interactive-processor.service';
 
 @Module({
   imports: [CapitalGainsModule],
@@ -32,8 +34,10 @@ import { InkReactAdapter } from './infrastructure/adapters/cli-framework/ink-rea
     ReadInputFromStdinUseCase,
     ReadInputFromFileUseCase,
     RunTestsUseCase,
+    RunInteractiveModeUseCase,
+    InteractiveProcessorService,
     CLIService,
   ],
-  exports: [CLIService],
+  exports: [CLIService, InteractiveProcessorService],
 })
 export class CLIModule {}
