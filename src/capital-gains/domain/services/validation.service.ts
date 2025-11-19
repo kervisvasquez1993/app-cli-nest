@@ -1,9 +1,10 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
+import { IValidationService } from '../ports/validation.port';
 
 @Injectable()
-export class ValidationService {
+export class ValidationService implements IValidationService {
   async validateDto<T extends object>(
     dtoClass: new () => T,
     plain: unknown,
