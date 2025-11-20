@@ -22,6 +22,8 @@ import { InkReactAdapter } from './infrastructure/adapters/cli-framework/ink-rea
 import { InteractiveProcessorService } from './application/services/interactive-processor.service';
 import { INTERACTIVE_UI } from './domain/ports/interactive-ui.port';
 import { InquirerAdapter } from './infrastructure/adapters/interactive-ui/inquirer.adapter';
+import { FILE_SYSTEM } from './domain/ports/file-system.port';
+import { NodeFileSystemAdapter } from './infrastructure/adapters/file-system/node-fs.adapter';
 
 @Module({
   imports: [CapitalGainsModule],
@@ -30,6 +32,7 @@ import { InquirerAdapter } from './infrastructure/adapters/interactive-ui/inquir
     { provide: INPUT_READER, useClass: StdinReaderAdapter },
     { provide: OUTPUT_WRITER, useClass: ConsoleWriterAdapter },
     { provide: INTERACTIVE_UI, useClass: InquirerAdapter },
+    { provide: FILE_SYSTEM, useClass: NodeFileSystemAdapter },
     JsonPresenter,
     TablePresenter,
     ProcessSingleLineUseCase,
