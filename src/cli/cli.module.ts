@@ -20,6 +20,8 @@ import { RunTestsUseCase } from './application/use-cases/run-tests.use-case';
 import { RunInteractiveModeUseCase } from './application/use-cases/run-interactive-mode.use-case';
 import { InkReactAdapter } from './infrastructure/adapters/cli-framework/ink-react.adapter';
 import { InteractiveProcessorService } from './application/services/interactive-processor.service';
+import { INTERACTIVE_UI } from './domain/ports/interactive-ui.port';
+import { InquirerAdapter } from './infrastructure/adapters/interactive-ui/inquirer.adapter';
 
 @Module({
   imports: [CapitalGainsModule],
@@ -27,6 +29,7 @@ import { InteractiveProcessorService } from './application/services/interactive-
     { provide: CLI_FRAMEWORK, useClass: InkReactAdapter },
     { provide: INPUT_READER, useClass: StdinReaderAdapter },
     { provide: OUTPUT_WRITER, useClass: ConsoleWriterAdapter },
+    { provide: INTERACTIVE_UI, useClass: InquirerAdapter },
     JsonPresenter,
     TablePresenter,
     ProcessSingleLineUseCase,
