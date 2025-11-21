@@ -26,6 +26,7 @@ import { NodeFileSystemAdapter } from './infrastructure/adapters/file-system/nod
 import { CLI_FRAMEWORK } from './domain/ports/cli-framework.port';
 import { CommanderAdapter } from './infrastructure/adapters/cli-framework/commander.adapter';
 import { OperationHistoryService } from './application/services/operation-history.service';
+import { InteractiveConsolePresenter } from './presentation/interactive-console.presenter';
 
 @Module({
   imports: [CapitalGainsModule],
@@ -46,6 +47,7 @@ import { OperationHistoryService } from './application/services/operation-histor
     InteractiveProcessorService,
     OperationHistoryService,
     CLIService,
+    InteractiveConsolePresenter,
   ],
   exports: [CLIService, InteractiveProcessorService],
 })
