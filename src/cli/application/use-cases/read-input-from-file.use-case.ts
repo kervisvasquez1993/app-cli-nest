@@ -1,3 +1,4 @@
+// src/cli/application/use-cases/read-input-from-file.use-case.ts
 import { Injectable, Inject } from '@nestjs/common';
 import { FILE_SYSTEM, IFileSystem } from '../../domain/ports/file-system.port';
 import {
@@ -7,6 +8,8 @@ import {
 import { ProcessOperationsBatchUseCase } from './process-operations-batch.use-case';
 import { CLIError, EmptyFileError } from '../../domain/errors/cli.errors';
 import { toInputLines } from '../../utils/input-lines.factory';
+import { FilePath } from '../../domain/value-objects/file-path.vo';
+
 @Injectable()
 export class ReadInputFromFileUseCase {
   constructor(
@@ -21,17 +24,22 @@ export class ReadInputFromFileUseCase {
 
   async execute(filePath: string): Promise<void> {
     try {
-      const fileContent = await this.fileSystem.readFile(filePath, 'utf-8');
+      const normalizedPath = FilePath.from(filePath);
+
+      const fileContent = await this.fileSystem.readFile(
+        normalizedPath.getValue(),
+        'utf-8',
+      );
 
       if (!fileContent.trim()) {
-        throw new EmptyFileError(filePath);
+        throw new EmptyFileError(normalizedPath.toString());
       }
 
       const rawLines = fileContent.split('\n');
       const inputLines = toInputLines(rawLines);
 
       if (inputLines.length === 0) {
-        throw new EmptyFileError(filePath);
+        throw new EmptyFileError(normalizedPath.toString());
       }
 
       const outputLines = await this.processBatch.execute(inputLines);
