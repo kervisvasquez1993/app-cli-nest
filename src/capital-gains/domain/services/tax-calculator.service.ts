@@ -1,7 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import { Operation } from '../entities/operation.entity';
 import { Portfolio } from '../entities/portfolio.entity';
 import { Money } from '../value-objects/money.vo';
 
+@Injectable()
 export class TaxCalculationService {
   private static readonly TAX_RATE = 0.2;
   private static readonly TAX_FREE_LIMIT = Money.from(20000);

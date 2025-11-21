@@ -1,4 +1,3 @@
-// src/cli/infrastructure/presenters/json-presenter.ts
 import { Injectable } from '@nestjs/common';
 import { TaxResultDto } from '../../../capital-gains/infrastructure/dto/tax-result.dto';
 

@@ -1,4 +1,3 @@
-// src/cli/domain/ports/interactive-ui.port.ts
 export const INTERACTIVE_UI = Symbol('IInteractiveUI');
 
 export interface MenuOption {

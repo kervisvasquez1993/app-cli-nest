@@ -12,6 +12,7 @@ import { LOGGER } from './domain/ports/logger.port';
 import { InMemoryPortfolioRepository } from './infrastructure/repositories/in-memory-portfolio.repository';
 import { ConsoleLoggerAdapter } from './infrastructure/logger/console-logger.adapter';
 import { ValidationService } from './infrastructure/validation/validation.service';
+import { TaxCalculationService } from './domain/services/tax-calculator.service';
 
 @Module({
   providers: [
@@ -22,6 +23,7 @@ import { ValidationService } from './infrastructure/validation/validation.servic
     ProcessBuyOperationUseCase,
     ProcessSellOperationUseCase,
     CapitalGainsService,
+    TaxCalculationService,
   ],
   exports: [
     CapitalGainsService,

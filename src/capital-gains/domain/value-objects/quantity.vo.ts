@@ -1,7 +1,7 @@
 export class Quantity {
   private constructor(private readonly value: number) {
-    if (value <= 0) {
-      throw new Error('Quantity must be positive');
+    if (value < 0) {
+      throw new Error('Quantity must be zero or positive');
     }
     if (!Number.isInteger(value)) {
       throw new Error('Quantity must be an integer');
@@ -10,6 +10,10 @@ export class Quantity {
 
   static from(value: number): Quantity {
     return new Quantity(value);
+  }
+
+  static zero(): Quantity {
+    return new Quantity(0);
   }
 
   getValue(): number {
@@ -21,7 +25,11 @@ export class Quantity {
   }
 
   subtract(other: Quantity): Quantity {
-    return new Quantity(this.value - other.value);
+    const result = this.value - other.value;
+    if (result < 0) {
+      throw new Error('Resulting quantity cannot be negative');
+    }
+    return new Quantity(result);
   }
 
   isGreaterThan(other: Quantity): boolean {

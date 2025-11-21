@@ -10,6 +10,10 @@ import { Operation } from '../../domain/entities/operation.entity';
 import { ILogger, LOGGER } from '../../domain/ports/logger.port';
 import { TaxResultDto } from '../../infrastructure/dto/tax-result.dto';
 import { OperationDto } from '../../infrastructure/dto/operation.dto';
+import {
+  IPortfolioRepository,
+  PORTFOLIO_REPOSITORY,
+} from '../../domain/ports/portfolio-repository.port';
 
 @Injectable()
 export class ProcessOperationsUseCase {
@@ -18,12 +22,18 @@ export class ProcessOperationsUseCase {
     private readonly validator: IValidationService,
     @Inject(LOGGER)
     private readonly logger: ILogger,
+    @Inject(PORTFOLIO_REPOSITORY)
+    private readonly portfolioRepo: IPortfolioRepository,
     private readonly buyUseCase: ProcessBuyOperationUseCase,
     private readonly sellUseCase: ProcessSellOperationUseCase,
   ) {}
 
   async execute(operations: unknown): Promise<TaxResultDto[]> {
     this.logger.info('Starting operations processing');
+
+    // ✅ Cada execução deste use case representa UMA simulação (uma linha de input)
+    // Garantimos que o estado do portfólio começa sempre limpo.
+    await this.portfolioRepo.reset();
 
     const validated = await this.validator.validateArray(
       OperationDto,
@@ -46,7 +56,6 @@ export class ProcessOperationsUseCase {
       const tax = operation.isBuy()
         ? await this.buyUseCase.execute(operation)
         : await this.sellUseCase.execute(operation);
-
       results.push(new TaxResultDto(tax.getValue()));
     }
 
