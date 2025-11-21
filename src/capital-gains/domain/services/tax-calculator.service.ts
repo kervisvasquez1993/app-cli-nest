@@ -1,115 +1,74 @@
-export class Portfolio {
-  private constructor(
-    private totalShares: number = 0,
-    private weightedAveragePrice: number = 0,
-    private accumulatedLoss: number = 0,
-  ) {}
+import { Operation } from '../entities/operation.entity';
+import { Portfolio } from '../entities/portfolio.entity';
+import { Money } from '../value-objects/money.vo';
 
-  static create(): Portfolio {
-    return new Portfolio(0, 0, 0);
-  }
+export class TaxCalculationService {
+  private static readonly TAX_RATE = 0.2;
+  private static readonly TAX_FREE_LIMIT = Money.from(20000);
 
-  static reconstitute(
-    totalShares: number,
-    weightedAveragePrice: number,
-    accumulatedLoss: number,
-  ): Portfolio {
-    return new Portfolio(totalShares, weightedAveragePrice, accumulatedLoss);
-  }
-
-  getTotalShares(): number {
-    return this.totalShares;
-  }
-
-  getWeightedAveragePrice(): number {
-    return this.weightedAveragePrice;
-  }
-
-  getAccumulatedLoss(): number {
-    return this.accumulatedLoss;
-  }
-
-  buyShares(quantity: number, unitCost: number): Portfolio {
-    // ✅ AGREGAR ESTAS VALIDACIONES
-    if (quantity <= 0) {
-      throw new Error('Quantity must be greater than zero');
-    }
-    if (unitCost <= 0) {
-      throw new Error('Unit cost must be greater than zero');
-    }
-
-    const currentTotal = this.totalShares * this.weightedAveragePrice;
-    const newTotal = quantity * unitCost;
-    const newTotalShares = this.totalShares + quantity;
-    const newWeightedAverage = (currentTotal + newTotal) / newTotalShares;
-
-    return new Portfolio(
-      newTotalShares,
-      this.roundToTwoDecimals(newWeightedAverage),
-      this.accumulatedLoss,
-    );
-  }
-
-  sellShares(quantity: number): Portfolio {
-    // ✅ AGREGAR ESTAS VALIDACIONES
-    if (quantity <= 0) {
-      throw new Error('Quantity must be greater than zero');
-    }
-    if (quantity > this.totalShares) {
-      throw new Error(
-        `Cannot sell ${quantity} shares. Only ${this.totalShares} shares available`,
-      );
-    }
-
-    return new Portfolio(
-      this.totalShares - quantity,
-      this.weightedAveragePrice,
-      this.accumulatedLoss,
-    );
-  }
-
-  recordLoss(loss: number): Portfolio {
-    // ✅ AGREGAR ESTA VALIDACIÓN
-    if (loss < 0) {
-      throw new Error('Loss must be a positive number');
-    }
-
-    return new Portfolio(
-      this.totalShares,
-      this.weightedAveragePrice,
-      this.accumulatedLoss + loss, // ✅ Cambié Math.abs(loss) por solo loss
-    );
-  }
-
-  deductLoss(profit: number): { portfolio: Portfolio; taxableProfit: number } {
-    // ✅ AGREGAR ESTA VALIDACIÓN
-    if (profit < 0) {
-      throw new Error('Profit must be a positive number');
-    }
-
-    if (this.accumulatedLoss === 0) {
-      return { portfolio: this, taxableProfit: profit };
-    }
-
-    if (profit <= this.accumulatedLoss) {
+  static calculateTax(
+    operation: Operation,
+    portfolio: Portfolio,
+  ): { tax: Money; updatedPortfolio: Portfolio } {
+    // 1. Buy operations never pay tax
+    if (operation.isBuy()) {
       return {
-        portfolio: new Portfolio(
-          this.totalShares,
-          this.weightedAveragePrice,
-          this.accumulatedLoss - profit,
-        ),
-        taxableProfit: 0,
+        tax: Money.zero(),
+        updatedPortfolio: portfolio,
       };
     }
 
-    const remainingProfit = profit - this.accumulatedLoss;
+    // 2. Calculate profit or loss
+    const profitOrLoss = this.calculateProfitOrLoss(operation, portfolio);
+
+    // 3. If loss, accumulate it (regardless of operation value)
+    if (profitOrLoss.isNegative()) {
+      return {
+        tax: Money.zero(),
+        updatedPortfolio: portfolio.recordLoss(profitOrLoss.abs().getValue()),
+      };
+    }
+
+    // 4. If no profit/loss, no tax
+    if (profitOrLoss.isZero()) {
+      return {
+        tax: Money.zero(),
+        updatedPortfolio: portfolio,
+      };
+    }
+
+    // 5. Check tax-free limit FIRST (before deducting losses)
+    // If operation ≤ 20k: no tax, no loss deduction
+    if (operation.getTotalValue().isLessThanOrEqual(this.TAX_FREE_LIMIT)) {
+      return {
+        tax: Money.zero(),
+        updatedPortfolio: portfolio, // ✅ NO deduce pérdidas
+      };
+    }
+
+    // 6. Deduct accumulated losses from profit (only if operation > 20k)
+    const { portfolio: portfolioAfterDeduction, taxableProfit } =
+      portfolio.deductLoss(profitOrLoss.getValue());
+
+    // 7. Calculate tax on taxable profit
+    const tax = Money.from(taxableProfit * this.TAX_RATE);
+
     return {
-      portfolio: new Portfolio(this.totalShares, this.weightedAveragePrice, 0),
-      taxableProfit: remainingProfit,
+      tax: tax.round(),
+      updatedPortfolio: portfolioAfterDeduction,
     };
   }
 
-  private roundToTwoDecimals(value: number): number {
-    return Math.round(value * 100) / 100;
+  private static calculateProfitOrLoss(
+    operation: Operation,
+    portfolio: Portfolio,
+  ): Money {
+    const weightedAverage = Money.from(portfolio.getWeightedAveragePrice());
+    const profitPerShare = operation.getUnitCost().subtract(weightedAverage);
+    const totalProfit = profitPerShare.multiply(
+      operation.getQuantity().getValue(),
+    );
+
+    return totalProfit;
   }
 }

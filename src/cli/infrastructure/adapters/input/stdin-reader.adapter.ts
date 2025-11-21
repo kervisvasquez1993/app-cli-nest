@@ -1,4 +1,3 @@
-// src/cli/infrastructure/adapters/input/stdin-reader.adapter.ts
 import { Injectable } from '@nestjs/common';
 import { IInputReader } from '../../../domain/ports/input-reader.port';
 import * as readline from 'readline';

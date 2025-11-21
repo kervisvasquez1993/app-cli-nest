@@ -1,8 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { IOutputWriter } from '../../../domain/ports/output-writer.port';
 import * as fs from 'fs/promises';
 
-@Injectable()
 export class FileWriterAdapter implements IOutputWriter {
   constructor(private readonly filePath: string) {}
 

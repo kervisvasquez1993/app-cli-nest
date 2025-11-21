@@ -1,3 +1,4 @@
+// src/cli/application/use-cases/run-tests.use-case.ts
 import { Injectable, Inject } from '@nestjs/common';
 import {
   IOutputWriter,
@@ -132,7 +133,32 @@ export class RunTestsUseCase {
         ],
       },
       {
-        name: 'Caso #1 + Caso #2 - Linhas independentes',
+        name: 'Caso #7 - Ciclo completo com reset',
+        input: [
+          '[{"operation":"buy", "unit-cost":10.00, "quantity": 10000},{"operation":"sell", "unit-cost":2.00, "quantity": 5000},{"operation":"sell", "unit-cost":20.00, "quantity": 2000},{"operation":"sell", "unit-cost":20.00, "quantity": 2000},{"operation":"sell", "unit-cost":25.00, "quantity": 1000},{"operation":"buy", "unit-cost":20.00, "quantity": 10000},{"operation":"sell", "unit-cost":15.00, "quantity": 5000},{"operation":"sell", "unit-cost":30.00, "quantity": 4350},{"operation":"sell", "unit-cost":30.00, "quantity": 650}]',
+        ],
+        expectedOutput: [
+          '[{"tax":0},{"tax":0},{"tax":0},{"tax":0},{"tax":3000},{"tax":0},{"tax":0},{"tax":3700},{"tax":0}]',
+        ],
+      },
+      {
+        name: 'Caso #8 - Múltiplos ciclos buy/sell',
+        input: [
+          '[{"operation":"buy", "unit-cost":10.00, "quantity": 10000},{"operation":"sell", "unit-cost":50.00, "quantity": 10000},{"operation":"buy", "unit-cost":20.00, "quantity": 10000},{"operation":"sell", "unit-cost":50.00, "quantity": 10000}]',
+        ],
+        expectedOutput: ['[{"tax":0},{"tax":80000},{"tax":0},{"tax":60000}]'],
+      },
+      {
+        name: 'Caso #9 - Casos límite com operação = R$ 20.000',
+        input: [
+          '[{"operation":"buy", "unit-cost":5000.00, "quantity": 10},{"operation":"sell", "unit-cost":4000.00, "quantity": 5},{"operation":"buy", "unit-cost":15000.00, "quantity": 5},{"operation":"buy", "unit-cost":4000.00, "quantity": 2},{"operation":"buy", "unit-cost":23000.00, "quantity": 2},{"operation":"sell", "unit-cost":20000.00, "quantity": 1},{"operation":"sell", "unit-cost":12000.00, "quantity": 10},{"operation":"sell", "unit-cost":15000.00, "quantity": 3}]',
+        ],
+        expectedOutput: [
+          '[{"tax":0},{"tax":0},{"tax":0},{"tax":0},{"tax":0},{"tax":0},{"tax":1000},{"tax":2400}]',
+        ],
+      },
+      {
+        name: 'Caso #1 + #2 - Linhas independentes',
         input: [
           '[{"operation":"buy", "unit-cost":10.00, "quantity": 100},{"operation":"sell", "unit-cost":15.00, "quantity": 50},{"operation":"sell", "unit-cost":15.00, "quantity": 50}]',
           '[{"operation":"buy", "unit-cost":10.00, "quantity": 10000},{"operation":"sell", "unit-cost":20.00, "quantity": 5000},{"operation":"sell", "unit-cost":5.00, "quantity": 5000}]',

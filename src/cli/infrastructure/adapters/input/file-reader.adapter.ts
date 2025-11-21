@@ -1,8 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { IInputReader } from '../../../domain/ports/input-reader.port';
 import * as fs from 'fs/promises';
 
-@Injectable()
 export class FileReaderAdapter implements IInputReader {
   constructor(private readonly filePath: string) {}
 

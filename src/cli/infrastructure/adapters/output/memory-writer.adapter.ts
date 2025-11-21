@@ -1,7 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { IOutputWriter } from '../../../domain/ports/output-writer.port';
 
-@Injectable()
 export class MemoryWriterAdapter implements IOutputWriter {
   private lines: string[] = [];
   private errors: string[] = [];

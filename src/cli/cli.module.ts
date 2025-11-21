@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { CapitalGainsModule } from '../capital-gains/capital-gains.module';
 import { CLIService } from './cli.service';
 
-import { CLI_FRAMEWORK } from './domain/ports/cli-framework.port';
 import { INPUT_READER } from './domain/ports/input-reader.port';
 import { OUTPUT_WRITER } from './domain/ports/output-writer.port';
 
@@ -18,21 +17,23 @@ import { ReadInputFromStdinUseCase } from './application/use-cases/read-input-fr
 import { ReadInputFromFileUseCase } from './application/use-cases/read-input-from-file.use-case';
 import { RunTestsUseCase } from './application/use-cases/run-tests.use-case';
 import { RunInteractiveModeUseCase } from './application/use-cases/run-interactive-mode.use-case';
-import { InkReactAdapter } from './infrastructure/adapters/cli-framework/ink-react.adapter';
+
 import { InteractiveProcessorService } from './application/services/interactive-processor.service';
 import { INTERACTIVE_UI } from './domain/ports/interactive-ui.port';
 import { InquirerAdapter } from './infrastructure/adapters/interactive-ui/inquirer.adapter';
 import { FILE_SYSTEM } from './domain/ports/file-system.port';
 import { NodeFileSystemAdapter } from './infrastructure/adapters/file-system/node-fs.adapter';
+import { CLI_FRAMEWORK } from './domain/ports/cli-framework.port';
+import { CommanderAdapter } from './infrastructure/adapters/cli-framework/commander.adapter';
 
 @Module({
   imports: [CapitalGainsModule],
   providers: [
-    { provide: CLI_FRAMEWORK, useClass: InkReactAdapter },
     { provide: INPUT_READER, useClass: StdinReaderAdapter },
     { provide: OUTPUT_WRITER, useClass: ConsoleWriterAdapter },
     { provide: INTERACTIVE_UI, useClass: InquirerAdapter },
     { provide: FILE_SYSTEM, useClass: NodeFileSystemAdapter },
+    { provide: CLI_FRAMEWORK, useClass: CommanderAdapter },
     JsonPresenter,
     TablePresenter,
     ProcessSingleLineUseCase,
