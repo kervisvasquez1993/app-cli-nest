@@ -1,6 +1,6 @@
 // src/cli/infrastructure/presenters/json-presenter.ts
 import { Injectable } from '@nestjs/common';
-import { TaxResultDto } from '../../../capital-gains/dto/tax-result.dto';
+import { TaxResultDto } from '../../../capital-gains/infrastructure/dto/tax-result.dto';
 
 export interface PresenterOptions {
   pretty?: boolean;

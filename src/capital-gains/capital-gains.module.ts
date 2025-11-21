@@ -9,9 +9,9 @@ import { VALIDATION_SERVICE } from './domain/ports/validation.port';
 import { PORTFOLIO_REPOSITORY } from './domain/ports/portfolio-repository.port';
 import { LOGGER } from './domain/ports/logger.port';
 
-import { InMemoryPortfolioRepository } from './insfrastructure/repositories/in-memory-portfolio.repository';
-import { ConsoleLoggerAdapter } from './insfrastructure/logger/console-logger.adapter';
-import { ValidationService } from './insfrastructure/validation/validation.service';
+import { InMemoryPortfolioRepository } from './infrastructure/repositories/in-memory-portfolio.repository';
+import { ConsoleLoggerAdapter } from './infrastructure/logger/console-logger.adapter';
+import { ValidationService } from './infrastructure/validation/validation.service';
 
 @Module({
   providers: [

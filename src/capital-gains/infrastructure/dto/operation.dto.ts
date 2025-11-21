@@ -1,5 +1,5 @@
 import { IsEnum, IsNumber, IsPositive } from 'class-validator';
-import { OperationType } from '../domain/enums/operation-type.enum';
+import { OperationType } from '../../domain/enums/operation-type.enum';
 
 export class OperationDto {
   @IsEnum(OperationType)

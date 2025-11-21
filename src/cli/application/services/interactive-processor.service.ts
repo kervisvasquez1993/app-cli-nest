@@ -4,7 +4,7 @@ import {
   IPortfolioRepository,
   PORTFOLIO_REPOSITORY,
 } from '../../../capital-gains/domain/ports/portfolio-repository.port';
-import { TaxResultDto } from '../../../capital-gains/dto/tax-result.dto';
+import { TaxResultDto } from '../../../capital-gains/infrastructure/dto/tax-result.dto';
 
 export interface OperationInput {
   operation: 'buy' | 'sell';

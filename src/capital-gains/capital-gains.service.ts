@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { TaxResultDto } from './dto/tax-result.dto';
+
 import { ProcessOperationsUseCase } from './application/use-cases/process-operations.use-case';
+import { TaxResultDto } from './infrastructure/dto/tax-result.dto';
 
 @Injectable()
 export class CapitalGainsService {

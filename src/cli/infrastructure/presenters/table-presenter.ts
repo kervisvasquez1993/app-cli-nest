@@ -1,6 +1,6 @@
 // src/cli/infrastructure/presenters/table-presenter.ts
 import { Injectable } from '@nestjs/common';
-import { TaxResultDto } from '../../../capital-gains/dto/tax-result.dto';
+import { TaxResultDto } from '../../../capital-gains/infrastructure/dto/tax-result.dto';
 
 @Injectable()
 export class TablePresenter {

@@ -16,7 +16,6 @@ export class Operation {
   ): Operation {
     return new Operation(type, Money.from(unitCost), Quantity.from(quantity));
   }
-
   getType(): OperationType {
     return this.type;
   }

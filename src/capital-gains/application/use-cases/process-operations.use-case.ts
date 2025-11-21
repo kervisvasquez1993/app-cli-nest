@@ -1,6 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { OperationDto } from '../../dto/operation.dto';
-import { TaxResultDto } from '../../dto/tax-result.dto';
+
 import { ProcessBuyOperationUseCase } from './process-buy-operation.use-case';
 import { ProcessSellOperationUseCase } from './process-sell-operation.use-case';
 import {
@@ -9,6 +8,8 @@ import {
 } from '../../domain/ports/validation.port';
 import { Operation } from '../../domain/entities/operation.entity';
 import { ILogger, LOGGER } from '../../domain/ports/logger.port';
+import { TaxResultDto } from '../../infrastructure/dto/tax-result.dto';
+import { OperationDto } from '../../infrastructure/dto/operation.dto';
 
 @Injectable()
 export class ProcessOperationsUseCase {
