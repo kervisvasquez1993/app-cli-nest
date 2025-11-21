@@ -25,6 +25,7 @@ import { FILE_SYSTEM } from './domain/ports/file-system.port';
 import { NodeFileSystemAdapter } from './infrastructure/adapters/file-system/node-fs.adapter';
 import { CLI_FRAMEWORK } from './domain/ports/cli-framework.port';
 import { CommanderAdapter } from './infrastructure/adapters/cli-framework/commander.adapter';
+import { OperationHistoryService } from './application/services/operation-history.service';
 
 @Module({
   imports: [CapitalGainsModule],
@@ -43,6 +44,7 @@ import { CommanderAdapter } from './infrastructure/adapters/cli-framework/comman
     RunTestsUseCase,
     RunInteractiveModeUseCase,
     InteractiveProcessorService,
+    OperationHistoryService,
     CLIService,
   ],
   exports: [CLIService, InteractiveProcessorService],

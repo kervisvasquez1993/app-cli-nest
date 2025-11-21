@@ -1,4 +1,4 @@
-// src/application/services/operation-history.service.ts
+// src/cli/application/services/operation-history.service.ts
 import { Injectable } from '@nestjs/common';
 
 export interface OperationHistory {
@@ -13,23 +13,23 @@ export interface OperationHistory {
 export class OperationHistoryService {
   private history: OperationHistory[] = [];
 
-  async add(operation: OperationHistory): Promise<void> {
+  add(operation: OperationHistory): void {
     this.history.push(operation);
   }
 
-  async getAll(): Promise<OperationHistory[]> {
+  getAll(): OperationHistory[] {
     return [...this.history];
   }
 
-  async getTotalTax(): Promise<number> {
+  getTotalTax(): number {
     return this.history.reduce((sum, op) => sum + op.tax, 0);
   }
 
-  async getCount(): Promise<number> {
+  getCount(): number {
     return this.history.length;
   }
 
-  async clear(): Promise<void> {
+  clear(): void {
     this.history = [];
   }
 }
