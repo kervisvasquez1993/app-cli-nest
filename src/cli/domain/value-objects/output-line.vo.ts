@@ -1,15 +1,15 @@
 export class OutputLine {
-  private constructor(private readonly content: unknown) {}
+  private constructor(private readonly line: string) {}
 
-  static fromJSON(content: unknown): OutputLine {
-    return new OutputLine(content);
+  static fromString(line: string): OutputLine {
+    return new OutputLine(line);
   }
 
   toJSONString(): string {
-    return JSON.stringify(this.content);
+    return this.line;
   }
 
-  getContent(): unknown {
-    return this.content;
+  getContent(): string {
+    return this.line;
   }
 }

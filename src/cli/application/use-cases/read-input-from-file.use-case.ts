@@ -1,4 +1,3 @@
-// src/cli/application/use-cases/read-input-from-file.use-case.ts
 import { Injectable, Inject } from '@nestjs/common';
 import { FILE_SYSTEM, IFileSystem } from '../../domain/ports/file-system.port';
 import {
@@ -6,16 +5,17 @@ import {
   IOutputWriter,
 } from '../../domain/ports/output-writer.port';
 import { ProcessOperationsBatchUseCase } from './process-operations-batch.use-case';
-import { InputLine } from '../../domain/value-objects/input-line.vo';
 import { CLIError, EmptyFileError } from '../../domain/errors/cli.errors';
-
+import { toInputLines } from '../../utils/input-lines.factory';
 @Injectable()
 export class ReadInputFromFileUseCase {
   constructor(
     @Inject(FILE_SYSTEM)
     private readonly fileSystem: IFileSystem,
+
     @Inject(OUTPUT_WRITER)
     private readonly outputWriter: IOutputWriter,
+
     private readonly processBatch: ProcessOperationsBatchUseCase,
   ) {}
 
@@ -28,9 +28,7 @@ export class ReadInputFromFileUseCase {
       }
 
       const rawLines = fileContent.split('\n');
-      const inputLines = rawLines
-        .filter((line) => line.trim())
-        .map((line) => InputLine.from(line));
+      const inputLines = toInputLines(rawLines);
 
       if (inputLines.length === 0) {
         throw new EmptyFileError(filePath);

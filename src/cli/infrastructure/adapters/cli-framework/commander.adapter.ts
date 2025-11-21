@@ -24,12 +24,9 @@ export class CommanderAdapter implements ICLIFramework {
       .command(command.name)
       .description(command.description);
 
-    // Agregar opciones si existen
     if (command.options) {
       command.options.forEach((option) => {
-        // ✅ FIX: Manejar defaultValue correctamente
         if (option.defaultValue !== undefined) {
-          // Commander acepta string | boolean | string[], pero no number
           const defaultValue = option.defaultValue as
             | string
             | boolean
@@ -41,26 +38,14 @@ export class CommanderAdapter implements ICLIFramework {
       });
     }
 
-    // Agregar acción
     cmd.action(async (options: Record<string, OptionValue>) => {
-      try {
-        await command.action(options);
-      } catch (error) {
-        console.error(
-          '❌ Error:',
-          error instanceof Error ? error.message : 'Unknown error',
-        );
-        process.exit(1);
-      }
+      // ❗ No process.exit aquí. Si hay error, que se propague.
+      await command.action(options);
     });
   }
 
   async execute(args: string[]): Promise<void> {
-    try {
-      await this.program.parseAsync(args);
-    } catch (error) {
-      // Commander ya maneja los errores, solo salir
-      process.exit(1);
-    }
+    // Commander ya lanza errores si algo sale mal (comando inválido, etc.)
+    await this.program.parseAsync(args);
   }
 }
