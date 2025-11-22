@@ -10,7 +10,7 @@ export class InteractiveConsolePresenter {
       '╔════════════════════════════════════════════════════════════╗',
     );
     console.log(
-      '║        🏦 Capital Gains Calculator - Interactive Mode      ║',
+      '║        🏦 Capital Gains Calculator - Modo Interativo       ║',
     );
     console.log(
       '║                                                            ║',
@@ -33,7 +33,7 @@ export class InteractiveConsolePresenter {
       '╔════════════════════════════════════════════════════════════╗',
     );
     console.log(
-      '║                    👋 ¡Hasta luego!                        ║',
+      '║                    👋 Até a próxima!                       ║',
     );
     console.log(
       '║                                                            ║',
@@ -76,7 +76,9 @@ export class InteractiveConsolePresenter {
     );
     console.log(`   Valor total:        R$ ${totalValue.toFixed(2)}`);
     console.log(
-      `   Lucro/Prejuízo:     R$ ${profitOrLoss.toFixed(2)} ${profitOrLoss >= 0 ? '📈' : '📉'}`,
+      `   Lucro/Prejuízo:     R$ ${profitOrLoss.toFixed(2)} ${
+        profitOrLoss >= 0 ? '📈' : '📉'
+      }`,
     );
     console.log('═'.repeat(50));
 
@@ -88,11 +90,13 @@ export class InteractiveConsolePresenter {
     tax: number,
   ): void {
     console.log('\n✅ Compra registrada com sucesso!\n');
-    console.log('📊 Portafolio Atualizado:');
+    console.log('📊 Portfólio atualizado:');
     console.log('═'.repeat(50));
     console.log(`   Total de ações:         ${portfolio.totalShares}`);
     console.log(
-      `   Preço médio ponderado:  R$ ${portfolio.weightedAveragePrice.toFixed(2)}`,
+      `   Preço médio ponderado:  R$ ${portfolio.weightedAveragePrice.toFixed(
+        2,
+      )}`,
     );
     console.log(
       `   Prejuízo acumulado:     R$ ${portfolio.accumulatedLoss.toFixed(2)}`,
@@ -106,11 +110,13 @@ export class InteractiveConsolePresenter {
     tax: number,
   ): void {
     console.log('\n✅ Venda registrada com sucesso!\n');
-    console.log('📊 Portafolio Atualizado:');
+    console.log('📊 Portfólio atualizado:');
     console.log('═'.repeat(50));
     console.log(`   Ações restantes:        ${portfolio.totalShares}`);
     console.log(
-      `   Preço médio ponderado:  R$ ${portfolio.weightedAveragePrice.toFixed(2)}`,
+      `   Preço médio ponderado:  R$ ${portfolio.weightedAveragePrice.toFixed(
+        2,
+      )}`,
     );
     console.log(
       `   Prejuízo acumulado:     R$ ${portfolio.accumulatedLoss.toFixed(2)}`,
@@ -124,7 +130,7 @@ export class InteractiveConsolePresenter {
     totalTax: number,
     totalOps: number,
   ): void {
-    console.log('\n📊 ESTADO ATUAL DO PORTAFOLIO\n');
+    console.log('\n📊 ESTADO ATUAL DO PORTFÓLIO\n');
     console.log(
       '╔════════════════════════════════════════════════════════════╗',
     );
@@ -137,10 +143,14 @@ export class InteractiveConsolePresenter {
     console.log('');
     console.log(`   📦 Total de ações:              ${portfolio.totalShares}`);
     console.log(
-      `   💵 Preço médio ponderado:       R$ ${portfolio.weightedAveragePrice.toFixed(2)}`,
+      `   💵 Preço médio ponderado:       R$ ${portfolio.weightedAveragePrice.toFixed(
+        2,
+      )}`,
     );
     console.log(
-      `   📉 Prejuízo acumulado:          R$ ${portfolio.accumulatedLoss.toFixed(2)}`,
+      `   📉 Prejuízo acumulado:          R$ ${portfolio.accumulatedLoss.toFixed(
+        2,
+      )}`,
     );
 
     const totalValue = portfolio.totalShares * portfolio.weightedAveragePrice;
@@ -155,7 +165,7 @@ export class InteractiveConsolePresenter {
   }
 
   showHistory(history: OperationHistory[], totalTax: number): void {
-    console.log('\n📜 HISTORIAL DE OPERAÇÕES\n');
+    console.log('\n📜 HISTÓRICO DE OPERAÇÕES\n');
     console.log(
       '┌────┬──────────┬────────────┬─────────────┬──────────────┬─────────────────────┐',
     );
@@ -163,7 +173,7 @@ export class InteractiveConsolePresenter {
       '│ #  │ Tipo     │ Quantidade │ Preço Unit  │ Imposto      │ Data/Hora           │',
     );
     console.log(
-      '├────┼──────────┼────────────┼─────────────┬──────────────┼─────────────────────┤',
+      '├────┼──────────┼────────────┼─────────────┼──────────────┼─────────────────────┤',
     );
 
     history.forEach((op, index) => {

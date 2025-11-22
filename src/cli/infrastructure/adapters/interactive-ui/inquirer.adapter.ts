@@ -13,7 +13,7 @@ export class InquirerAdapter implements IInteractiveUI {
       {
         type: 'list',
         name: 'selected',
-        message: '¿Qué desea hacer?',
+        message: 'O que você deseja fazer?',
         choices: options,
       },
     ]);
@@ -21,21 +21,41 @@ export class InquirerAdapter implements IInteractiveUI {
   }
 
   async promptNumber(config: PromptConfig): Promise<number> {
-    const answers = await inquirer.prompt<{ value: number }>([
+    const answers = await inquirer.prompt<{ value: string }>([
       {
-        type: 'number',
+        type: 'input',
         name: 'value',
         message: config.message,
-        default: config.default,
-        validate: (input) => {
-          if (config.validate) {
-            return config.validate(input);
+        default:
+          typeof config.default === 'number'
+            ? String(config.default)
+            : config.default,
+        validate: (input: string) => {
+          const trimmed = input.trim();
+
+          if (!trimmed) {
+            return 'Por favor, informe um número.';
           }
-          return typeof input === 'number' && !isNaN(input);
+
+          const num = Number(trimmed);
+
+          if (!Number.isFinite(num)) {
+            return 'Valor inválido, digite apenas números.';
+          }
+
+          // se o chamador passou uma função de validação, usamos ela
+          if (config.validate) {
+            return config.validate(num);
+          }
+
+          return true;
         },
+        filter: (input: string) => input.trim(),
       },
     ]);
-    return answers.value;
+
+    const num = Number(answers.value.trim());
+    return num;
   }
 
   async promptText(config: PromptConfig): Promise<string> {
@@ -76,7 +96,7 @@ export class InquirerAdapter implements IInteractiveUI {
   }
 
   async pause(
-    message: string = 'Presione Enter para continuar...',
+    message: string = 'Pressione Enter para continuar...',
   ): Promise<void> {
     await inquirer.prompt<{ pause: string }>([
       {

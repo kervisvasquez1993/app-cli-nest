@@ -1,4 +1,3 @@
-// src/cli/application/use-cases/run-interactive-mode.use-case.ts
 import { Injectable, Inject } from '@nestjs/common';
 import { InteractiveProcessorService } from '../services/interactive-processor.service';
 import {
@@ -26,11 +25,11 @@ export class RunInteractiveModeUseCase {
 
     while (running) {
       const action = await this.ui.showMenu([
-        { name: '🛒 Registrar compra', value: 'buy' },
-        { name: '💸 Registrar venda', value: 'sell' },
-        { name: '📊 Ver portafolio atual', value: 'view' },
-        { name: '📜 Ver historial de operações', value: 'history' },
-        { name: '🔄 Resetar portafolio', value: 'reset' },
+        { name: '🛒 Registrar compra de ações', value: 'buy' },
+        { name: '💸 Registrar venda de ações', value: 'sell' },
+        { name: '📊 Ver portfólio atual', value: 'view' },
+        { name: '📜 Ver histórico de operações', value: 'history' },
+        { name: '🔄 Resetar portfólio', value: 'reset' },
         { name: '💾 Exportar resultados', value: 'export' },
         { name: '❌ Sair', value: 'exit' },
       ]);
@@ -63,7 +62,9 @@ export class RunInteractiveModeUseCase {
       } catch (error) {
         this.ui.clear();
         this.ui.showMessage(
-          `\n⚠️  Error: ${error instanceof Error ? error.message : 'Error desconocido'}`,
+          `\n⚠️  Erro: ${
+            error instanceof Error ? error.message : 'Erro desconhecido'
+          }`,
           'error',
         );
         await this.ui.pause();
@@ -154,7 +155,9 @@ export class RunInteractiveModeUseCase {
     this.ui.clear();
     this.ui.showMessage('\n💸 REGISTRAR VENDA DE AÇÕES\n', 'info');
     this.ui.showMessage(
-      `Ações disponíveis: ${portfolio.totalShares} | Preço médio atual: R$ ${portfolio.weightedAveragePrice.toFixed(2)}`,
+      `Ações disponíveis: ${portfolio.totalShares} | Preço médio atual: R$ ${portfolio.weightedAveragePrice.toFixed(
+        2,
+      )}`,
       'info',
     );
 
@@ -232,12 +235,16 @@ export class RunInteractiveModeUseCase {
 
     if (result.tax > 0) {
       this.ui.showMessage(
-        `\n💰 Você deve pagar R$ ${result.tax.toFixed(2)} de imposto (20% sobre o lucro tributável).`,
+        `\n💰 Você deve pagar R$ ${result.tax.toFixed(
+          2,
+        )} de imposto (20% sobre o lucro tributável).`,
         'info',
       );
     } else if (profitOrLoss < 0) {
       this.ui.showMessage(
-        `\n📉 Prejuízo de R$ ${Math.abs(profitOrLoss).toFixed(2)} acumulado para dedução futura.`,
+        `\n📉 Prejuízo de R$ ${Math.abs(profitOrLoss).toFixed(
+          2,
+        )} acumulado para dedução futura.`,
         'info',
       );
     } else if (totalValue <= 20000) {
@@ -282,7 +289,7 @@ export class RunInteractiveModeUseCase {
 
     const confirm = await this.ui.promptConfirm({
       message:
-        '\n⚠️  Tem certeza que deseja resetar o portafolio? Todos os dados serão perdidos.',
+        '\n⚠️  Tem certeza que deseja resetar o portfólio? Todos os dados serão perdidos.',
       default: false,
     });
 
@@ -295,7 +302,7 @@ export class RunInteractiveModeUseCase {
     await this.interactiveProcessor.resetPortfolio();
     this.historyService.clear();
 
-    this.ui.showMessage('\n✅ Portafolio resetado com sucesso!', 'success');
+    this.ui.showMessage('\n✅ Portfólio resetado com sucesso!', 'success');
     await this.ui.pause();
   }
 
