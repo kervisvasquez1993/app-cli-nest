@@ -1,72 +1,171 @@
-# Capital Gains Calculator (CLI)
+Arquitetura da Aplicação
 
-CLI para cálculo de imposto sobre ganho de capital em operações com ações, baseado no desafio técnico do Nubank.
+Para este desafio foi utilizada uma arquitetura baseada em princípios do Domain-Driven Design (DDD) e no padrão Ports and Adapters (Hexagonal Architecture).
+A aplicação foi construída com NestJS, mas sem depender de módulos externos complexos. O framework foi escolhido apenas para organizar o código em módulos, injetar dependências e permitir uma aplicação bem estruturada e escalável, mesmo sendo um CLI.
 
-A aplicação:
+Motivos da escolha do NestJS:
 
-- Lê operações em formato JSON pela **entrada padrão (stdin)** ou por **arquivo**.
-- Calcula o imposto devido em cada operação de venda.
-- Mantém o estado do portfólio **em memória** durante cada simulação.
-- Garante que **cada linha de entrada** é uma simulação independente.
-- Expõe também um **modo interativo** opcional para explorar as regras de forma visual.
+Modularização clara (cada contexto isolado)
 
----
+Inversão de dependência através de providers
 
-## 🧮 Regras de negócio implementadas
+Fácil manutenção e organização
 
-As regras seguem o enunciado do desafio:
+Permite separar domínio, aplicação e infraestrutura
 
-- Cada operação possui:
-  - `operation`: `"buy"` ou `"sell"`
-  - `unit-cost`: preço unitário (número com duas casas decimais)
-  - `quantity`: quantidade de ações
+Facilita testes unitários e integração
 
-- **Compras (`buy`)**:
-  - Nunca geram imposto.
-  - Atualizam o **preço médio ponderado** de compra:
-    \[
-    \text{nova média} = \frac{q*{\text{atual}} \cdot \text{média atual} + q*{\text{comprada}} \cdot \text{preço compra}}{q*{\text{atual}} + q*{\text{comprada}}}
-    \]
-  - Exemplo do enunciado: compra 10 ações a 20,00 e 5 ações a 10,00 → média = 16,67.
+O framework não adiciona peso à execução no formato CLI
 
-- **Vendas (`sell`)**:
-  - Calculam lucro ou prejuízo com base no **preço médio ponderado**.
-  - **Prejuízo**:
-    - Quando o preço de venda é menor que o preço médio.
-    - Não gera imposto.
-    - O valor absoluto do prejuízo é acumulado em um saldo de prejuízo para abater lucros futuros.
-  - **Lucro**:
-    - Se o **valor total da operação** (`unit-cost * quantity`) for **≤ 20.000,00**:
-      - A operação é **isenta de imposto**, mesmo com lucro.
-      - Não é feita dedução de prejuízo acumulado.
-    - Se o valor total for **> 20.000,00**:
-      - Deduzimos o **prejuízo acumulado** do lucro.
-      - Aplicamos **20%** sobre o lucro tributável resultante.
-      - Se o lucro for totalmente consumido pelo prejuízo acumulado, o imposto é zero.
+Apesar de ser NestJS, não existe servidor HTTP, banco de dados ou qualquer camada adicional desnecessária.
+A aplicação funciona estritamente como um programa de linha de comando.
 
-- **Acúmulo e uso de prejuízo**:
-  - Prejuízos são sempre acumulados, inclusive em operações com valor total ≤ 20.000,00.
-  - Prejuízo acumulado é usado para deduzir **múltiplos lucros futuros**, até zerar.
+Estrutura do Projeto
 
-- **Garantias**:
-  - Nunca é vendida uma quantidade maior do que o total de ações disponíveis (validação feita no modo interativo).
-  - O estado do portfólio é representado por:
-    - `totalShares`
-    - `weightedAveragePrice`
-    - `accumulatedLoss`
+Resumo da estrutura de diretórios relevantes:
 
----
+src/
+capital-gains/
+application/
+use-cases/
+services/
+domain/
+entities/
+value-objects/
+services/
+ports/
+enums/
+infrastructure/
+dto/
+capital-gains.module.ts
 
-## 🧾 Entrada e saída
+cli/
+application/
+use-cases/
+utils/
+services/
+domain/
+errors/
+ports/
+value-objects/
+infrastructure/
+adapters/
+input/
+output/
+file-system/
+cli-framework/
+interactive-ui/
+presenters/
+presentation/
+interactive-console.presenter.ts
+cli.service.ts
+cli.module.ts
 
-### Formato de entrada
+app.module.ts
+main.ts
 
-Cada linha representa **uma simulação independente** e contém uma lista JSON de operações:
+Principais responsabilidades:
 
-```json
-[
-  { "operation": "buy", "unit-cost": 10.0, "quantity": 100 },
-  { "operation": "sell", "unit-cost": 15.0, "quantity": 50 },
-  { "operation": "sell", "unit-cost": 15.0, "quantity": 50 }
-]
-```
+Domínio (domain)
+Contém entidades (Portfolio, Operation), regras de cálculo, value-objects e serviços de domínio independentes de qualquer tecnologia externa.
+
+Application (use cases)
+Orquestram regras e chamam o domínio.
+Exemplo: ProcessOperationsUseCase, ProcessSellOperationUseCase.
+
+Infrastructure (adapters)
+Implementações concretas das portas:
+
+leitores de STDIN e arquivos
+
+escritores para console e arquivo
+
+adaptador do Commander (CLI)
+
+adaptador do Inquirer (modo interativo)
+
+CLI
+Define comandos do usuário: process, file, interactive, test.
+Toda interação com o usuário ocorre nesta camada.
+
+Portfolio em memória
+Estado totalmente isolado dentro do repositório InMemoryPortfolioRepository.
+Resetado a cada simulação conforme exigido no enunciado.
+
+Comandos Disponíveis na CLI
+
+O programa oferece quatro comandos principais.
+
+process
+Lê operações via stdin.
+Uso:
+echo '[{"operation":"buy","unit-cost":10,"quantity":100}]' | npm run cli:process
+
+file
+Lê operações a partir de um arquivo contendo múltiplos cenários.
+Uso:
+npm run cli:file -- --file ./input.txt
+
+test
+Executa todos os casos de teste programados na aplicação.
+Uso:
+npm run cli:test
+
+interactive
+Inicia o modo interativo visual com menus.
+Uso:
+npm run cli:interactive
+
+Exemplos de Execução
+
+Entrada via stdin
+
+echo '[{"operation":"buy","unit-cost":10,"quantity":100}]' | npm run cli:process
+
+Saída esperada:
+[{"tax":0}]
+
+Entrada via arquivo
+
+Conteúdo do arquivo input.txt:
+[{"operation":"buy","unit-cost":10,"quantity":100},
+{"operation":"sell","unit-cost":15,"quantity":50},
+{"operation":"sell","unit-cost":15,"quantity":50}]
+
+Execução:
+npm run cli:file -- --file input.txt
+
+Saída:
+[{"tax":0},{"tax":0},{"tax":0}]
+
+Modo interativo
+Permite registrar compras, vendas, visualizar portfólio e histórico.
+Exemplo:
+npm run cli:interactive
+
+Exibe menus passo a passo:
+Registrar compra, registrar venda, ver estado atual, ver histórico, sair.
+
+Fluxo da Aplicação
+
+O CLI recebe uma lista JSON de operações.
+
+O validador verifica cada item (operation, unit-cost, quantity).
+
+Cada simulação dispara um reset no repositório de portfólio.
+
+Operações são convertidas em objetos de domínio.
+
+Os use cases processam compra ou venda:
+
+atualizam preço médio
+
+acumulam prejuízo
+
+consomem prejuízo futuro
+
+calculam imposto quando aplicável
+
+O resultado, para cada operação, é um TaxResult contendo o valor do imposto.
+
+A saída é impressa em formato JSON.
