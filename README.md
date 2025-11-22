@@ -1,171 +1,150 @@
-Arquitetura da Aplicação
+Capital Gains Calculator (CLI)
 
-Para este desafio foi utilizada uma arquitetura baseada em princípios do Domain-Driven Design (DDD) e no padrão Ports and Adapters (Hexagonal Architecture).
-A aplicação foi construída com NestJS, mas sem depender de módulos externos complexos. O framework foi escolhido apenas para organizar o código em módulos, injetar dependências e permitir uma aplicação bem estruturada e escalável, mesmo sendo um CLI.
+Este projeto implementa um programa de linha de comando para cálculo de imposto sobre ganho de capital em operações de compra e venda de ações, conforme as regras especificadas no desafio técnico do Nubank.
 
-Motivos da escolha do NestJS:
+O programa lê operações em formato JSON a partir da entrada padrão (stdin) ou de um arquivo, processa cada operação em ordem e retorna uma lista contendo os valores de imposto de cada operação de venda. Cada linha de entrada representa uma simulação independente e o estado interno do portfólio é reiniciado entre simulações.
 
-Modularização clara (cada contexto isolado)
+A aplicação também inclui um modo interativo opcional para facilitar testes manuais.
 
-Inversão de dependência através de providers
+1. Decisões Técnicas e Arquiteturais
 
-Fácil manutenção e organização
+A solução foi construída utilizando NestJS como framework base, mas sem qualquer servidor HTTP, banco de dados ou estruturas externas desnecessárias. O objetivo principal foi criar um CLI simples, organizado, testável e extensível.
 
-Permite separar domínio, aplicação e infraestrutura
+Arquitetura
+
+A arquitetura segue os princípios de Domain-Driven Design (DDD) e Ports and Adapters (Arquitetura Hexagonal), estruturada da seguinte forma:
+
+Domínio
+Contém as regras de negócio puras (entidades, value objects, serviços de domínio).
+Exemplos: Portfolio, Operation, TaxCalculationService.
+
+Aplicação (Use Cases)
+Orquestra regras do domínio e coordena fluxo entre portas.
+Exemplos: ProcessOperationsUseCase, ProcessBuyOperationUseCase.
+
+Infraestrutura
+Implementações concretas das portas de entrada e saída.
+Exemplos: leitura de arquivos, leitura de stdin, escrita no console, adaptadores CLI.
+
+CLI
+Onde são definidos os comandos process, file, test e interactive.
+
+Estado em memória
+
+O estado do portfólio é mantido totalmente em memória dentro do repositório InMemoryPortfolioRepository e é sempre reiniciado a cada simulação, como exige o enunciado.
+
+Motivos para uso do NestJS
+
+Organização modular clara
+
+Injeção de dependências nativa
+
+Separação explícita entre camadas
+
+Melhor manutenibilidade a longo prazo
 
 Facilita testes unitários e integração
 
-O framework não adiciona peso à execução no formato CLI
+Não adiciona complexidade desnecessária no modo CLI
 
-Apesar de ser NestJS, não existe servidor HTTP, banco de dados ou qualquer camada adicional desnecessária.
-A aplicação funciona estritamente como um programa de linha de comando.
+Apesar de usar NestJS, a aplicação continua simples e focada.
 
-Estrutura do Projeto
+2. Justificativa para Frameworks e Bibliotecas
 
-Resumo da estrutura de diretórios relevantes:
+NestJS
+Usado unicamente para modularização e injeção de dependências.
+Não há rotas HTTP, bancos, controllers, pipes ou middlewares.
 
-src/
-capital-gains/
-application/
-use-cases/
-services/
-domain/
-entities/
-value-objects/
-services/
-ports/
-enums/
-infrastructure/
-dto/
-capital-gains.module.ts
+Commander
+Biblioteca leve, utilizada apenas para o registro dos comandos da CLI.
 
-cli/
-application/
-use-cases/
-utils/
-services/
-domain/
-errors/
-ports/
-value-objects/
-infrastructure/
-adapters/
-input/
-output/
-file-system/
-cli-framework/
-interactive-ui/
-presenters/
-presentation/
-interactive-console.presenter.ts
-cli.service.ts
-cli.module.ts
+Inquirer
+Opcional, usado apenas para o modo interativo.
+Não afeta a execução principal do desafio.
 
-app.module.ts
-main.ts
+Nenhuma biblioteca externa é utilizada no domínio ou nas regras de cálculo.
 
-Principais responsabilidades:
+3. Como Compilar e Executar o Projeto
 
-Domínio (domain)
-Contém entidades (Portfolio, Operation), regras de cálculo, value-objects e serviços de domínio independentes de qualquer tecnologia externa.
+Instalar dependências:
 
-Application (use cases)
-Orquestram regras e chamam o domínio.
-Exemplo: ProcessOperationsUseCase, ProcessSellOperationUseCase.
+npm install
 
-Infrastructure (adapters)
-Implementações concretas das portas:
+Compilar:
 
-leitores de STDIN e arquivos
+npm run build
 
-escritores para console e arquivo
+Executar o CLI compilado:
 
-adaptador do Commander (CLI)
+node dist/main.js
 
-adaptador do Inquirer (modo interativo)
+Executar via ts-node (sem compilar):
 
-CLI
-Define comandos do usuário: process, file, interactive, test.
-Toda interação com o usuário ocorre nesta camada.
+npm run cli
 
-Portfolio em memória
-Estado totalmente isolado dentro do repositório InMemoryPortfolioRepository.
-Resetado a cada simulação conforme exigido no enunciado.
+4. Uso dos Comandos da CLI
+   4.1. Processar operações via stdin (modo principal do desafio)
+   echo '[{"operation":"buy","unit-cost":10,"quantity":100}]' | npm run cli:process
 
-Comandos Disponíveis na CLI
-
-O programa oferece quatro comandos principais.
-
-process
-Lê operações via stdin.
-Uso:
-echo '[{"operation":"buy","unit-cost":10,"quantity":100}]' | npm run cli:process
-
-file
-Lê operações a partir de um arquivo contendo múltiplos cenários.
-Uso:
+4.2. Processar operações a partir de arquivo
 npm run cli:file -- --file ./input.txt
 
-test
-Executa todos os casos de teste programados na aplicação.
-Uso:
+4.3. Executar todos os casos de teste da aplicação
 npm run cli:test
 
-interactive
-Inicia o modo interativo visual com menus.
-Uso:
+4.4. Iniciar o modo interativo (opcional)
 npm run cli:interactive
 
-Exemplos de Execução
+5. Como Executar os Testes da Solução
 
-Entrada via stdin
+Os testes implementam todos os 9 casos oficiais do enunciado, além de testes adicionais de consistência.
 
-echo '[{"operation":"buy","unit-cost":10,"quantity":100}]' | npm run cli:process
+Para executar:
 
-Saída esperada:
-[{"tax":0}]
+npm run cli:test
 
-Entrada via arquivo
+Ou na versão compilada:
 
-Conteúdo do arquivo input.txt:
-[{"operation":"buy","unit-cost":10,"quantity":100},
-{"operation":"sell","unit-cost":15,"quantity":50},
-{"operation":"sell","unit-cost":15,"quantity":50}]
+npm run calc:test
 
-Execução:
-npm run cli:file -- --file input.txt
+Cada caso exibe PASSOU ou FALHOU no terminal.
 
-Saída:
-[{"tax":0},{"tax":0},{"tax":0}]
+6. Estrutura do Projeto (Resumo)
+   src/
+   ├── capital-gains/
+   │ ├── application/
+   │ │ ├── use-cases/
+   │ │ └── services/
+   │ ├── domain/
+   │ │ ├── entities/
+   │ │ ├── ports/
+   │ │ ├── value-objects/
+   │ │ └── services/
+   │ └── infrastructure/
+   │ └── dto/
+   │
+   ├── cli/
+   │ ├── application/
+   │ ├── domain/
+   │ ├── infrastructure/
+   │ │ └── adapters/
+   │ ├── presentation/
+   │ ├── cli.service.ts
+   │ └── cli.module.ts
+   │
+   ├── app.module.ts
+   └── main.ts
 
-Modo interativo
-Permite registrar compras, vendas, visualizar portfólio e histórico.
-Exemplo:
-npm run cli:interactive
+7. Notas Importantes
 
-Exibe menus passo a passo:
-Registrar compra, registrar venda, ver estado atual, ver histórico, sair.
+O estado do portfólio é reiniciado a cada linha de entrada, conforme exigido pelo desafio.
 
-Fluxo da Aplicação
+Todos os valores são arredondados para duas casas decimais.
 
-O CLI recebe uma lista JSON de operações.
+A saída JSON retorna números no formato padrão (sem strings).
 
-O validador verifica cada item (operation, unit-cost, quantity).
+Nenhum banco de dados externo é utilizado.
 
-Cada simulação dispara um reset no repositório de portfólio.
+O domínio é completamente independente da camada de infraestrutura.
 
-Operações são convertidas em objetos de domínio.
-
-Os use cases processam compra ou venda:
-
-atualizam preço médio
-
-acumulam prejuízo
-
-consomem prejuízo futuro
-
-calculam imposto quando aplicável
-
-O resultado, para cada operação, é um TaxResult contendo o valor do imposto.
-
-A saída é impressa em formato JSON.
+O modo interativo é opcional e não interfere na solução principal.
